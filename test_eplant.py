@@ -96,44 +96,42 @@ class Tests(unittest.TestCase):
 
     def test_namespace(self):
         xsd = namespace('http://www.w3.org/2001/XMLSchema', 'xsd')
-        self.assertTrue(isinstance(xsd('element'), qname))
-        self.assertTrue(isinstance(xsd('element'), unicode))
-        self.assertEqual(xsd('element'), u'xsd:element')
-        self.assertEqual(xsd/'element', u'xsd:element')
-        self.assertEqual(xsd('element').uri, 'http://www.w3.org/2001/XMLSchema')
-        self.assertEqual(xsd('element').shortcut, 'xsd')
-        self.assertEqual(xsd(u'имя-тега'), u'xsd:имя-тега')
-        self.assertEqual(repr(xsd('element')),
+        self.assertTrue(isinstance(xsd['element'], qname))
+        self.assertTrue(isinstance(xsd['element'], unicode))
+        self.assertEqual(xsd['element'], u'xsd:element')
+        self.assertEqual(xsd.element, u'xsd:element')
+        self.assertEqual(xsd[u'имя-тега'], u'xsd:имя-тега')
+        self.assertEqual(repr(xsd.element),
                          "<qname u'xsd:element' "
                          "uri='http://www.w3.org/2001/XMLSchema'>")
 
     def test_namespace_collector_with_tags(self):
         ns = namespace('ns', 'ns')
         ns1 = namespace('ns1', 'ns1')
-        tag = (ns/'tag', ('tag1',),
-                         (ns1/'tag2', (ns/'tag3',)))
+        tag = (ns.tag, ('tag1',), (ns1.tag2, (ns.tag3,)))
         self.assertEqual(NamespaceCollector().visit(tag).namespaces,
-                {'xmlns:ns':'ns', 'xmlns:ns1':'ns1'})
+                         {'xmlns:ns': 'ns',
+                          'xmlns:ns1': 'ns1'})
 
     def test_namespace_collector_with_tags_and_attrs(self):
         ns = namespace('ns', 'ns')
         ns1 = namespace('ns1', 'ns1')
         ns3 = namespace('ns3', 'ns3')
-        tag = (ns/'tag',
+        tag = (ns.tag,
                 ('tag1',),
                 'text',
-                (ns1/'tag2', {ns3/'attr': 'value'},
-                    (ns/'tag3',)))
+                (ns1.tag2, {ns3.attr: 'value'},
+                    (ns.tag3,)))
         self.assertEqual(NamespaceCollector().visit(tag).namespaces,
-                         {'xmlns:ns':'ns',
-                          'xmlns:ns1':'ns1',
-                          'xmlns:ns3':'ns3'})
+                         {'xmlns:ns': 'ns',
+                          'xmlns:ns1': 'ns1',
+                          'xmlns:ns3': 'ns3'})
 
     def test_namespace_collector_with_overlaping_shortcuts(self):
         ns = namespace('ns', 'ns')
         ns1 = namespace('ns1', 'ns')
-        tag = (ns/'tag', ('tag1',),
-                         (ns1/'tag2', (ns/'tag3',)))
+        tag = (ns.tag, ('tag1',),
+                       (ns1.tag2, (ns.tag3,)))
         with self.assertRaises(ValueError) as err:
             NamespaceCollector().visit(tag).namespaces
 
@@ -141,11 +139,11 @@ class Tests(unittest.TestCase):
         ns = namespace('ns', 'ns')
         ns1 = namespace('ns1', 'ns1')
         ns3 = namespace('ns3', 'ns3')
-        tag = (ns/'tag',
+        tag = (ns.tag,
                 ('tag1',),
                 'text',
-                (ns1/'tag2', {ns3/'attr': 'value'},
-                    (ns/'tag3',)))
+                (ns1.tag2, {ns3.attr: 'value'},
+                    (ns.tag3,)))
         self.assertEqual(encode(tag, indent=2),
                          '<?xml version="1.0"?>\n'
                          '<ns:tag xmlns:ns="ns" xmlns:ns1="ns1" xmlns:ns3="ns3">\n'
@@ -192,7 +190,7 @@ class Tests(unittest.TestCase):
 
     def test_to_etree_tag_with_ns(self):
         ns = namespace('ns', 'ns')
-        self.assertEqualEtree(to_etree((ns/'a',)),
+        self.assertEqualEtree(to_etree((ns.a,)),
                               ElementTree.fromstring('<ns:a xmlns:ns="ns"/>'))
 
     def test_custom_builder_object(self):

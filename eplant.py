@@ -63,18 +63,14 @@ def as_etree(**kw):
 class namespace(object):
 
     def __init__(self, uri, shortcut):
-        self.uri = uri
-        self.shortcut = shortcut
+        self._uri = uri
+        self._shortcut = shortcut
 
-    def __call__(self, name, force=False):
-        if isinstance(name, qname):
-            if not force:
-                return name
-            name = name.name
-        return qname(name, self.uri, self.shortcut)
+    def __getitem__(self, name):
+        return qname(name, self._uri, self._shortcut)
 
-    def __div__(self, name):
-        return self(name)
+    def __getattr__(self, name):
+        return self[name]
 
 
 class qname(unicode):

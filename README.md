@@ -38,10 +38,10 @@ Real world example::
     @as_etree()
     def Envelope(body):
         return \
-        (se/'Envelope',
-            (se/'Header',
-                (mhe/'From', {se/'mustUnderstand': 'true'}, 'me'),
-            (se/'Body', body))
+        (se.Envelope,
+            (se.Header,
+                (mhe.From, {se.mustUnderstand: 'true'}, 'me'),
+            (se.Body, body))
 
 
 --------
