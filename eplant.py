@@ -51,15 +51,6 @@ def _build_etree(struct, builder):
     builder.end(name)
 
 
-def as_etree(**kw):
-    def decorator(func):
-        @functools.wraps(func)
-        def wrapper(*args, **kwargs):
-            return to_etree(func(*args, **kwargs), **kw)
-        return wrapper
-    return decorator
-
-
 class namespace(object):
 
     def __init__(self, uri, shortcut):

@@ -26,23 +26,21 @@ Of course xml without namespaces is unusable, so there is `eplant.namespace`
 and `eplant.qname` primitives.
 
 `eplant.namespace` — a class that represents a namespace and can be used to
-emit tag and attribute(!) names. You can use `__call__` or `__div__` methods of
-`eplant.namespace` object to get some name in that namespace.
+emit tag and attribute(!) names. You can use attribute access or subscription
+of `eplant.namespace` object to get some name in that namespace.
 
 Real world example::
 
-    from eplant import namespace, as_etree
+    from eplant import namespace, to_etree
     se = namespace('http://schemas.xmlsoap.org/soap/envelope/', 'se')
     mhe = namespace('http://my.header.ext/', 'mhe')
 
-    @as_etree()
     def Envelope(body):
-        return \
-        (se.Envelope,
-            (se.Header,
-                (mhe.From, {se.mustUnderstand: 'true'}, 'me'),
-            (se.Body, body))
-
+        plant = (se.Envelope,
+                    (se.Header,
+                        (mhe.From, {se.mustUnderstand: 'true'}, 'me'),
+                    (se.Body, body)))
+        return to_etree(plant)
 
 --------
 examples
@@ -58,17 +56,3 @@ Simple usage::
     >>> tree = to_etree(plant)
     >>> tostring(tree)
     '<SomeRootTag><FirstChild>text</FirstChild><SecondChild attr="value">text</SecondChild></SomeRootTag>'
-
-`as_etree` decorator factory example::
-
-    >>> from eplant import as_etree
-    >>> from xml.etree.ElementTree import tostring
-    >>> @as_etree()
-    ... def SomeRootTag():
-    ...     return \
-    ...     ('SomeRootTag',
-    ...        ('FirstChild', 'text'),
-    ...        ('SecondChild', {'attr': 'value'}, 'text'))
-    >>> tostring(SomeRootTag())
-    '<SomeRootTag><FirstChild>text</FirstChild><SecondChild attr="value">text</SecondChild></SomeRootTag>'
-
