@@ -1,58 +1,33 @@
 eplant
 ======
 
-easy etree planting
+Easy `lxml.etree` planting.
 
-You can plant an etree by subscribing it in terms of builtin python types.
+Example:
 
-    ('a tag name', [optional attrs dict], [optional children tags or text])
+    from lxml import etree
+    import eplant
 
-Some examples:
+    plant = eplant.ElementPlant(
+        default_namespace = 'http://default/',
+        nsmap = {
+            'foo': 'http://foo/',
+            'bar': 'http://bar/',
+        }
+    )
 
-    ('tag', ) -> <tag/>
-    ('tag', {'attr': 'value'}) -> <tag attr="value"/>
-    ('tag', {'attr': 'value'}, 'text') -> <tag attr="value">text</tag>
-    ('tag', ('child', )) -> <tag><child/></tag>
-    ('tag',
-      ('child', ),
-      ('another_tag', 'text')) -> <tag><child/><another_tag>text</another_tag></tag>
+    default, foo, bar = plant.namespaces('', 'foo', 'bar')
 
+    doc = default.root(
+        foo.title({bar.x: 'a'}, 'title text'),
+        bar('small-body', 'body text'),
+    )
 
----------
-namespaces
----------
+    print(etree.tostring(doc, pretty_print=True))
 
-Of course xml without namespaces is unusable, so there is `eplant.namespace`
-and `eplant.qname` primitives.
+produces the following XML:
 
-`eplant.namespace` — a class that represents a namespace and can be used to
-emit tag and attribute(!) names. You can use attribute access or subscription
-of `eplant.namespace` object to get some name in that namespace.
-
-Real world example::
-
-    from eplant import namespace, to_etree
-    se = namespace('http://schemas.xmlsoap.org/soap/envelope/', 'se')
-    mhe = namespace('http://my.header.ext/', 'mhe')
-
-    def Envelope(body):
-        plant = (se.Envelope,
-                    (se.Header,
-                        (mhe.From, {se.mustUnderstand: 'true'}, 'me'),
-                    (se.Body, body)))
-        return to_etree(plant)
-
---------
-examples
---------
-
-Simple usage::
-
-    >>> from eplant import to_etree
-    >>> from xml.etree.ElementTree import tostring
-    >>> plant = ('SomeRootTag',
-    ...             ('FirstChild', 'text'),
-    ...             ('SecondChild', {'attr': 'value'}, 'text'))
-    >>> tree = to_etree(plant)
-    >>> tostring(tree)
-    '<SomeRootTag><FirstChild>text</FirstChild><SecondChild attr="value">text</SecondChild></SomeRootTag>'
+    <root xmlns:foo="http://foo/" xmlns:bar="http://bar/" xmlns="http://default/">
+      <foo:title bar:x="a">title text</foo:title>
+      <bar:small-body>body text</bar:small-body>
+    </root>
