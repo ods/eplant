@@ -52,7 +52,11 @@ class ElementPlant(object):
         self.options = options
 
     def namespace(self, name):
-        namespace = self.nsmap[name or None]
+        if name:
+            namespace = self.nsmap[name]
+        else:
+            # Default namespace or unqualified
+            namespace = self.nsmap.get(None, '')
         return Namespace(namespace=namespace, nsmap=self.nsmap, **self.options)
 
     def namespaces(self, *names):
